@@ -1,38 +1,81 @@
-from rpi_ws281x import Color, PixelStrip
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
 
-LED_COUNT = 18  # Number of LED pixels.
-LED_PIN = 21  # GPIO pin connected to the pixels (must support PWM!).
-LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
-LED_DMA = 10  # DMA channel to use for generating signal (try 10)
-LED_BRIGHTNESS = 255  # Set to 0 for darkest and 255 for brightest
-LED_INVERT = False  # True to invert the signal (when using NPN transistor level shift)
-LED_CHANNEL = 0
-LED_STATE_OFF = Color(0, 0, 0)  # OFF
+import time
+import board
+import neopixel
 
 
-class Ws281x:
-    def __init__(self):
-        self.__strip = PixelStrip(
-            LED_COUNT,
-            LED_PIN,
-            LED_FREQ_HZ,
-            LED_DMA,
-            LED_INVERT,
-            LED_BRIGHTNESS,
-            LED_CHANNEL,
-        )
-        self.__strip.begin()
+# On CircuitPlayground Express, and boards with built in status NeoPixel -> board.NEOPIXEL
+# Otherwise choose an open pin connected to the Data In of the NeoPixel strip, i.e. board.D1
+pixel_pin = board.D18
 
-    def on(self, red: int, green: int, blue: int) -> None:
-        color = Color(red, green, blue)
-        for i in range(self.__strip.numPixels()):
-            self.__strip.setPixelColor(i, color)
-            self.__strip.show()
+# On a Raspberry pi, use this instead, not all pins are supported
+# pixel_pin = board.D18
 
-    def off(self) -> None:
-        for i in range(self.__strip.numPixels()):
-            self.__strip.setPixelColor(i, LED_STATE_OFF)
-            self.__strip.show()
-            
-led = Ws281x()
-led.on(127, 0, 0)
+# The number of NeoPixels
+num_pixels = 10
+
+# The order of the pixel colors - RGB or GRB. Some NeoPixels have red and green reversed!
+# For RGBW NeoPixels, simply change the ORDER to RGBW or GRBW.
+ORDER = neopixel.GRB
+
+pixels = neopixel.NeoPixel(
+    pixel_pin, num_pixels, brightness=0.2, auto_write=False, pixel_order=ORDER
+)
+
+
+def wheel(pos):
+    # Input a value 0 to 255 to get a color value.
+    # The colours are a transition r - g - b - back to r.
+    if pos < 0 or pos > 255:
+        r = g = b = 0
+    elif pos < 85:
+        r = int(pos * 3)
+        g = int(255 - pos * 3)
+        b = 0
+    elif pos < 170:
+        pos -= 85
+        r = int(255 - pos * 3)
+        g = 0
+        b = int(pos * 3)
+    else:
+        pos -= 170
+        r = 0
+        g = int(pos * 3)
+        b = int(255 - pos * 3)
+    return (r, g, b) if ORDER in (neopixel.RGB, neopixel.GRB) else (r, g, b, 0)
+
+
+def rainbow_cycle(wait):
+    for j in range(255):
+        for i in range(num_pixels):
+            pixel_index = (i * 256 // num_pixels) + j
+            pixels[i] = wheel(pixel_index & 255)
+        pixels.show()
+        time.sleep(wait)
+
+
+while True:
+    # Comment this line out if you have RGBW/GRBW NeoPixels
+    pixels.fill((255, 0, 0))
+    # Uncomment this line if you have RGBW/GRBW NeoPixels
+    # pixels.fill((255, 0, 0, 0))
+    pixels.show()
+    time.sleep(1)
+
+    # Comment this line out if you have RGBW/GRBW NeoPixels
+    pixels.fill((0, 255, 0))
+    # Uncomment this line if you have RGBW/GRBW NeoPixels
+    # pixels.fill((0, 255, 0, 0))
+    pixels.show()
+    time.sleep(1)
+
+    # Comment this line out if you have RGBW/GRBW NeoPixels
+    pixels.fill((0, 0, 255))
+    # Uncomment this line if you have RGBW/GRBW NeoPixels
+    # pixels.fill((0, 0, 255, 0))
+    pixels.show()
+    time.sleep(1)
+
+    rainbow_cycle(0.001)  # rainbow cycle with 1ms delay per step

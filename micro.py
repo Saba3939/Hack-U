@@ -31,9 +31,10 @@ def get_distance():
 while True: # 繰り返し処理
     try:
         distance = '{:.1f}'.format(get_distance())  # 小数点1までまるめ
-        print("Distance: " + distance + "cm")       # 表示
-        time.sleep(1)                               # 1秒まつ
-
+        if distance < 30:
+            print("Open")
+        else:
+            print("No Open")
     except KeyboardInterrupt:                       # Ctrl + C押されたたら
         GPIO.cleanup()                              # GPIOお片付け
         sys.exit()                                  # プログラム終了

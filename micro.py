@@ -30,8 +30,8 @@ def get_distance():
 
 while True: # 繰り返し処理
     try:
-        distance = '{:.1f}'.format(get_distance())  # 小数点1までまるめ
-        if distance < 30:
+        distance = get_distance()  # 小数点1までまるめ
+        if distance > 30:
             print("Open")
         else:
             print("No Open")

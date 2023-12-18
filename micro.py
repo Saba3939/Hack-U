@@ -32,6 +32,7 @@ def get_distance():
 while True: # 繰り返し処理
     try:
         distance = get_distance()  # 小数点1までまるめ
+        print(distance)
         if distance > 30:
             led.rainbow_cycle(0.001)
         else:

@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 import sys
+import led
 
 trig_pin = 15                           # GPIO 15
 echo_pin = 14                           # GPIO 14
@@ -32,9 +33,9 @@ while True: # 繰り返し処理
     try:
         distance = get_distance()  # 小数点1までまるめ
         if distance > 30:
-            print("Open")
+            led.rainbow_cycle(0.001)
         else:
-            print("No Open")
+            led.No_led()
     except KeyboardInterrupt:                       # Ctrl + C押されたたら
         GPIO.cleanup()                              # GPIOお片付け
         sys.exit()                                  # プログラム終了

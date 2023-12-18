@@ -56,6 +56,7 @@ def rainbow_cycle(wait):
         time.sleep(wait)
 
 def No_led():
-    neopixel.fill((0,0,0))
+    pixels.fill((0,0,0))
+    pixels.show()
 while True:
     rainbow_cycle(0.001)  # rainbow cycle with 1ms delay per step
